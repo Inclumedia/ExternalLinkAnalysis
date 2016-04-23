@@ -30,8 +30,6 @@ class SpecialExternalLinkAnalysis extends SpecialPage {
 			}
 			if ( !isset( $results[$host][$row->el_to] ) ) {
 				$results[$host][$row->el_to] = array();
-			}
-			if ( !isset( $results[$host][$row->el_to]['pages'] ) ) {
 				$results[$host][$row->el_to]['pages'] = array();
 			}
 			$results[$host][$row->el_to]['description'] = $row->ld_desc;
@@ -43,22 +41,48 @@ class SpecialExternalLinkAnalysis extends SpecialPage {
 			$results[$host][$row->el_to]['pages'][] = $pageName;
 		}
 		$wikitext = '';
+		#ksort ( $results );
+		#uasort( $results, $this->cmp );
 		foreach ( $results as $resultKey => $resultValue ) {
-			$wikitext .= "==" . $resultKey . "==\n";
+			uasort( $resultValue, 'compareDescriptions' );
+			$firstMainspaceOneTopLevel = true;
 			foreach ( $resultValue as $resultValueKey => $resultValueValue ) {
-				$wikitext .= "===[" . $resultValueKey . ' '
-					. $resultValueValue['description'] . " <small>($resultValueKey)</small>" . "]===\n";
-			}
-			$firstOne = true;
-			foreach ( $resultValueValue['pages'] as $page ) {
-				if ( !$firstOne ) {
-					$wikitext .= ", ";
+				$firstOne = true;
+				$firstMainspaceOne = true;
+				ksort ( $resultValueValue['pages'] );
+				foreach ( $resultValueValue['pages'] as $page ) {
+					if ( strpos( $page, '{{ns:' ) !== false ) {
+						continue;
+					}
+					if ( $firstMainspaceOneTopLevel ) {
+						$wikitext .= "==" . $resultKey . "==\n";
+					}
+					if ( $firstMainspaceOne ) {
+						$wikitext .= "===[" . $resultValueKey . ' '
+							. $resultValueValue['description'];
+						if ( $resultValueKey != $resultValueValue['description'] ) {
+							$wikitext .= " <small>($resultValueKey)</small>";
+						}
+						$wikitext .= "]===\n";
+					}
+					if ( !$firstOne ) {
+						$wikitext .= ", ";
+					}
+					$wikitext .= '[[' . str_replace( '_', ' ', $page ) . ']]';
+					$firstOne = false;
+					$firstMainspaceOne = false;
+					$firstMainspaceOneTopLevel = false;
 				}
-				$wikitext .= '[[' . str_replace( '_', ' ', $page ) . ']]';
-				$firstOne = false;
+				$wikitext .= "\n";
 			}
-			$wikitext .= "\n";
 		}
 		$output->addWikiText( $wikitext );
 	}
 }
+
+function compareDescriptions($a, $b) {
+		if ($a['description'] == $b['description'] ) {
+			return 0;
+		}
+		return ($a['description'] < $b['description'] ) ? -1 : 1;
+	}

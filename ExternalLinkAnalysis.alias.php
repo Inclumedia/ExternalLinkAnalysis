@@ -12,5 +12,5 @@ $specialPageAliases = array();
  * @author <your username>
  */
 $specialPageAliases['en'] = array(
-	'ExternalLinkAnalysis' => array( 'ExternalLinkAnalysis', 'External link analysis' ),
+	'ExternalLinkAnalysis' => array( 'ExternalLinkAnalysis' ),
 );

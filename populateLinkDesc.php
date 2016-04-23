@@ -18,7 +18,11 @@ class PopulateLinkDesc extends Maintenance {
 	$dbw = wfGetDB( DB_MASTER );
 	echo "Adding link_desc rows for externallinks rows lacking them...\n";
 	// TODO: Replace this with a DISTINCT query
-	$res = $dbr->select( 'externallinks', 'el_to', '1=1' );
+	$res = $dbr->select(
+	    array( 'externallinks', 'page' ),
+	    'el_to',
+	    array( 'el_from=page_id', 'page_namespace=0' )
+	);
 	$results = array();
 	foreach ( $res as $row ) {
 	    if ( !in_array( $row->el_to, $results ) ) {
@@ -39,20 +43,22 @@ class PopulateLinkDesc extends Maintenance {
 	    array( 'ld_desc' => NULL )
 	);
 	foreach ( $res as $row ) {
+	    echo "	" . $row->ld_url . "\n";
 	    $doc = new DOMDocument();
 	    @$doc->loadHTMLFile( $row->ld_url );
 	    $xpath = new DOMXPath($doc);
-	    echo "	" . $row->ld_url . "\n";
 	    if ( $xpath->query('//title')->item(0) ) {
 		$title = $xpath->query('//title')->item(0)->nodeValue;
 		echo "		$title\n";
-		$dbw->update (
-		    'link_desc',
-		    array( 'ld_desc' => $title ),
-		    array( 'ld_id' => $row->ld_id )
-		);
 	    } else {
 		echo "		Unable to retrieve\n";
+		$title = $row->ld_url;
+	    }
+	    $dbw->update (
+		'link_desc',
+		array( 'ld_desc' => $title ),
+		array( 'ld_id' => $row->ld_id )
+	    );
 	    }
 	}
 	/*$res = $dbr->select(
