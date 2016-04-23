@@ -1,0 +1,10 @@
+{
+    "@metadata": {
+        "authors": [
+            "Raymond Kertezc"
+        ]
+    },
+    "externallinkanalysis": "The name of the extension's entry in Special:SpecialPages",
+    "externallinkanalysis-desc": "{{desc}}",
+    "externallinkanalysis-summary": "Description appearing on top of <tvar|1>[[Special:ExternalLinkAnalysis]]</>."
+}

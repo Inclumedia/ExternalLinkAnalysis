@@ -1,0 +1,10 @@
+{
+    "@metadata": {
+        "authors": [
+            "Raymond Kertezc"
+        ]
+    },
+    "externallinkanalysis": "External link analysis",
+    "externallinkanalysis-desc": "Implements [[Special:ExternalLinkAnalysis|a special page]] for external link analysis",
+    "externallinkanalysis-summary": "Analyze external links"
+}
